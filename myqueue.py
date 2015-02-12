@@ -27,19 +27,19 @@ def init_db():
 	with app.open_resource('schema.sql', mode='r') as f:
 		db.cursor().executescript(f.read())
 	db.commit()
-	
+
 def query_db(query, args=(), one=False):
     '''Queries the database and returns a list of dictionaries.'''
     cur = get_db().execute(query, args)
     rv = cur.fetchall()
-    return (rv[0] if rv else None) if one else rv	
+    return (rv[0] if rv else None) if one else rv
 
 def get_user_id(username):
     '''Convenience method to look up the id for a username.'''
     rv = query_db('select user_id from user where username = ?',
                   [username], one=True)
     return rv[0] if rv else None
-	
+
 @app.before_request
 def before_request():
 	g.user = None
@@ -52,7 +52,7 @@ def homepage():
 	'''Show a user's saved articles in Queue or if no user is logged in it
 	will redirect to the sign-in page.
 	'''
-	
+
 	if not g.user:
 		return redirect(url_for('login'))
 	return render_template('my_queue.html', messages=query_db('''
@@ -80,10 +80,10 @@ def login():
 			</fieldset>
 			</form>
 		</center>
-		<p>Not a member yet? Register now and start manage your time properly!
-		
+		<p>Not a member yet? Register now and start manage your online activities like you never did!
+
 	"""
 	return html
-	
+
 if __name__ == '__main__':
 	app.run(debug=True)
