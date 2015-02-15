@@ -45,6 +45,10 @@ def get_user_id(username):
                   [username], one=True)
     return rv[0] if rv else None
 
+def format_datetime(timestamp):
+    """Format a timestamp for display."""
+    return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
+
 @app.before_request
 def before_request():
     g.user = None
@@ -59,12 +63,23 @@ def homepage():
     '''
 
     if not g.user:
-        return redirect(url_for('login'))
+        return redirect(url_for('public_queues'))
     return render_template('my_queue.html', messages=query_db('''
-        select article.*, user.* from queue, user
-        where article.author_id = user.user_id and user.user_id = ?
+        select article.*, user.* from article, user
+        where article.author_id = user.user_id and
+            user.user_id = ?
         order by article.post_date desc limit ?''',
         [session['user_id'], PER_PAGE]))
+
+@app.route('/public')
+def public_queues():
+    """Displays the top public queues from all users."""
+    return render_template('my_queue.html', messages=query_db('''
+        select article.*, user.* from article, user
+        where article.author_id = user.user_id
+        order by article.post_date desc limit ?''', [PER_PAGE]))
+
+
 
 @app.route('/login')
 def login():

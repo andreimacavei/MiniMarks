@@ -6,7 +6,7 @@ create table user (
 	pw_hash text not null
 );
 
-drop table if exists queue;
+drop table if exists article;
 create table article (
 	article_id integer primary key autoincrement,
 	author_id integer not null,
