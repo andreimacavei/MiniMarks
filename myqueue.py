@@ -1,6 +1,7 @@
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, url_for, redirect, \
     render_template, g, _app_ctx_stack
+
 app = Flask(__name__)
 
 DATABASE = '/tmp/myqueue.db'
@@ -63,47 +64,38 @@ def homepage():
     '''
 
     if not g.user:
-        return redirect(url_for('public_queues'))
-    return render_template('my_queue.html', messages=query_db('''
+        return redirect(url_for('login'))
+    return render_template('myqueue.html', messages=query_db('''
         select article.*, user.* from article, user
         where article.author_id = user.user_id and
             user.user_id = ?
         order by article.post_date desc limit ?''',
         [session['user_id'], PER_PAGE]))
 
-@app.route('/public')
-def public_queues():
-    """Displays the top public queues from all users."""
-    return render_template('my_queue.html', messages=query_db('''
-        select article.*, user.* from article, user
-        where article.author_id = user.user_id
-        order by article.post_date desc limit ?''', [PER_PAGE]))
 
-
-
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    html = """
-        <h1>Welcome yo <b>Your</b> Queue</h1>
-        <br><br><br><br><br>
-        <h2>This is the right place to store interesting stuff you'd want to read later</h2>
-        <br><br><br><br>
-        <center>
-            <form action="login.js" method="POST">
-            <fieldset>
-            <legend>Sign In</legend>
-                Username: <input type="text" name="username">
-                <br>
-                Password: <input type="text" name="password">
-                <br><br>
-                <input type="submit" value="Submit">
-            </fieldset>
-            </form>
-        </center>
-        <p>Not a member yet? Register now and start manage your online activities like you never did!
+    """Logs the user in."""
+    if g.user:
+        return redirect(url_for('homepage'))
+    if request.method == 'POST':
+        user = query_db('''select * from user where
+            username= ?''', [request.form['username']], one=True)
+        if user is None:
+            error = 'Invalid username'
+        elif not check_password_hash(user['pw_hash'], request.form['password']):
+            error = 'Invalid password'
+        else:
+            # flash('You were logged in')
+            session['user_id'] = user['user_id']
+            return redirect(url_for('homepage'))
 
-    """
-    return html
+    return render_template('login.html', error=error)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Register the user."""
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)
