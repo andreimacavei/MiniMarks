@@ -1,18 +1,19 @@
 <!doctype html>
 <h1>MyQueue</h1>
-<br><br><br><br><br>
-<h2>A better way to save your bookmarks for later read.</h2>
-<br><br><br><br>
-<center>
-    <form action="login.js" method="POST">
-    <fieldset>
-    <legend>Sign In</legend>
-        Username: <input type="text" name="username">
-        <br>
-        Password: <input type="text" name="password">
-        <br><br>
-        <input type="submit" value="Submit">
-    </fieldset>
-    </form>
-</center>
-<p>Not a member yet? Register now and start manage your online activities like you never did!
+<h2>Save your bookmarks in a queue for later read.</h2>
+
+<form action="" method="POST">
+<fieldset>
+{% if error %}
+    <div class="error"><strong>Error:</strong>{{ error }}</div>
+{% endif %}
+<legend>Sign In</legend>
+    Username: <input type="text" name="username">
+    <br>
+    Password: <input type="text" name="password">
+    <br><br>
+    <input type="submit" value="Submit">
+</fieldset>
+</form>
+
+<p>Not a member yet? Register now!</p>
