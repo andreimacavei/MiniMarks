@@ -1,0 +1,12 @@
+<div class="bookmarks">
+
+{% for bookmark in queue %}
+    <div class="bookmark">
+        <h3 class="name"><a href="{{ bookmark.link }}">{{ bookmark.name }}</a></h3>
+        <img class="thumbnail" src="images/under_constr.jpg" style="width:128px;height:128p"/>
+        <p class="pubdate">{{ bookmark.postdate }}</p>
+    </div>
+
+{% endfor %}
+
+</div>
