@@ -19,6 +19,7 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(app.config['DATABASE'])
+        db.row_factory = sqlite3.Row
     return db
 
 @app.teardown_appcontext
@@ -86,14 +87,19 @@ def login():
             username= ?''', [request.form['username']], one=True)
         if user is None:
             error = 'Invalid username'
-        elif not check_password_hash(user[3], request.form['password']):
+        elif not check_password_hash(user['pw_hash'], request.form['password']):
             error = 'Invalid password'
         else:
             # flash('You were logged in')
-            session['user_id'] = user[0]
+            session['user_id'] = user['user_id']
             return redirect(url_for('homepage'))
 
     return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    """Logs the user out"""
+    return render_template('logout.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

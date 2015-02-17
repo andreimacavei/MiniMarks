@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>MyQueue</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/bookmarks.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/sidebar.css">
+</head>
+<body>
+    {% if g.user %}
+        <a href="{{ url_for('logout') }}">Sign out [{{ g.user.username }}]</a>
+    {% else %}
+    {% endif %}
+    {% include 'sidebar.html' %}
+    {% include 'bookmarks.html' %}
+</body>
+</html>

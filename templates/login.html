@@ -1,19 +1,25 @@
-<!doctype html>
-<h1>MyQueue</h1>
-<h2>Save your bookmarks in a queue for later read.</h2>
+{% extends "layout.html" %}
 
-<form action="" method="POST">
-<fieldset>
-{% if error %}
-    <div class="error"><strong>Error:</strong>{{ error }}</div>
-{% endif %}
-<legend>Sign In</legend>
-    Username: <input type="text" name="username">
-    <br>
-    Password: <input type="text" name="password">
-    <br><br>
-    <input type="submit" value="Submit">
-</fieldset>
-</form>
+{% block title %}Login{% endblock %}
 
-<p>Not a member yet? Register now!</p>
+{% block content%}
+
+    {% if error %}
+        <div class="error"><strong>Error:</strong>{{ error }}</div>
+    {% endif %}
+
+    <form action="" method="POST">
+    <fieldset>
+    <legend>Sign In</legend>
+        Username: <input type="text" name="username">
+        <br>
+        Password: <input type="text" name="password">
+        <br><br>
+        <input type="submit" value="Submit">
+    </fieldset>
+    </form>
+
+    <p>Not a member yet? Register now!</p>
+
+{% endblock %}
+
