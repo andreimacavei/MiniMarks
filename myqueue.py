@@ -68,7 +68,7 @@ def homepage():
 
     if not g.user:
         return redirect(url_for('login'))
-    return render_template('myqueue.html', messages=query_db('''
+    return render_template('homepage.html', bookmarks=query_db('''
         select article.*, user.* from article, user
         where article.author_id = user.user_id and
             user.user_id = ?
@@ -129,6 +129,8 @@ def logout():
     """Logs the user out."""
     session.pop('user_id', None)
     return render_template('logout.html')
+
+app.jinja_env.filters['datetimeformat'] = format_datetime
 
 
 if __name__ == '__main__':
