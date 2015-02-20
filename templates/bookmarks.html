@@ -2,9 +2,9 @@
 
 {% for bookmark in bookmarks %}
     <div class="bookmark">
-        <h3 class="name"><a href="{{ bookmark.link }}">{{ bookmark.name }}</a></h3>
-        <img class="thumbnail" src="images/under_constr.jpg" style="width:128px;height:128p"/>
-        <p class="pubdate">{{ bookmark.postdate }}</p>
+        <h3 class="name"><a href="{{ bookmark.url }}">{{ bookmark.name }}</a></h3>
+        <img class="thumbnail" src="{{ bookmark.thumb_file_path }}" style="width:128px;height:128p"/>
+        <p class="pubdate">{{ bookmark.post_date }}</p>
     </div>
 
 {% endfor %}

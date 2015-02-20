@@ -6,11 +6,12 @@ create table user (
 	pw_hash text not null
 );
 
-drop table if exists article;
-create table article (
-	article_id integer primary key autoincrement,
+drop table if exists bookmark;
+create table bookmark (
+	bookmark_id integer primary key autoincrement,
 	author_id integer not null,
 	url text not null,
+    name text,
 	post_date integer,
 	thumb_file_path text
 );

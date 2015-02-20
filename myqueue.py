@@ -1,3 +1,4 @@
+import time
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, url_for, redirect, \
     render_template, g, _app_ctx_stack
@@ -53,6 +54,9 @@ def format_datetime(timestamp):
     """Format a timestamp for display."""
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
 
+def thumbnail_path(url):
+    return 'images/under_constr.jpg'
+
 @app.before_request
 def before_request():
     g.user = None
@@ -62,17 +66,17 @@ def before_request():
 
 @app.route('/')
 def homepage():
-    '''Show a user's saved articles in Queue or if no user is logged in it
+    '''Show a user's saved bookmarks in Queue or if no user is logged in it
     will redirect to the sign-in page.
     '''
 
     if not g.user:
         return redirect(url_for('login'))
     return render_template('homepage.html', bookmarks=query_db('''
-        select article.*, user.* from article, user
-        where article.author_id = user.user_id and
+        select bookmark.*, user.* from bookmark, user
+        where bookmark.author_id = user.user_id and
             user.user_id = ?
-        order by article.post_date desc limit ?''',
+        order by bookmark.post_date desc limit ?''',
         [session['user_id'], PER_PAGE]))
 
 
@@ -129,6 +133,21 @@ def logout():
     """Logs the user out."""
     session.pop('user_id', None)
     return render_template('logout.html')
+
+
+@app.route('/add_bookmark', methods=['POST'])
+def add_bookmark():
+    """Registers a new bookmark for the user."""
+    if 'user_id' not in session:
+        abort(401)
+    if request.form['url']:
+        db = get_db()
+        db.execute('''insert into bookmark (author_id, url, name, post_date,
+            thumb_file_path) values (?, ?, ?, ?, ?)''',
+            [session['user_id'], request.form['url'], request.form['name'],
+            int(time.time()), thumbnail_path(request.form['url'])])
+        db.commit()
+    return redirect(url_for('homepage'))
 
 app.jinja_env.filters['datetimeformat'] = format_datetime
 
