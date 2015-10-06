@@ -1,12 +1,13 @@
 import time
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, url_for, redirect, \
-    render_template, g, _app_ctx_stack
+    render_template, g, _app_ctx_stack, flash
 from werkzeug import check_password_hash, generate_password_hash
+import logging
 
 app = Flask(__name__)
 
-DATABASE = '/tmp/myqueue.db'
+DATABASE = 'myqueue.db'
 PER_PAGE = 30
 SECRET_KEY = 'development key'
 
@@ -30,6 +31,7 @@ def close_database(exception):
     if db is not None:
         db.close()
 
+# @app.cli.command('initdb')
 def init_db():
     '''Initializes the database.'''
     with app.app_context():
@@ -142,11 +144,14 @@ def add_bookmark():
         abort(401)
     if request.form['url']:
         db = get_db()
+        app.logger.debug(" entered url:"+ request.form['url'] +
+                            " desc:" + request.form['desc'])
         db.execute('''insert into bookmark (author_id, url, name, post_date,
             thumb_file_path) values (?, ?, ?, ?, ?)''',
-            [session['user_id'], request.form['url'], request.form['name'],
+            [session['user_id'], request.form['url'], request.form['desc'],
             int(time.time()), thumbnail_path(request.form['url'])])
         db.commit()
+        flash('Your bookmark was added.')
     return redirect(url_for('homepage'))
 
 app.jinja_env.filters['datetimeformat'] = format_datetime
