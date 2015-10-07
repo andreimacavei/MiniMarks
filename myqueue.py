@@ -135,7 +135,7 @@ def register():
 def logout():
     """Logs the user out."""
     session.pop('user_id', None)
-    return render_template('logout.html')
+    return redirect(url_for('homepage'))
 
 
 @app.route('/add_bookmark', methods=['POST'])
@@ -155,7 +155,6 @@ def add_bookmark():
         flash('Your bookmark was added.')
     return redirect(url_for('homepage'))
 
-app.jinja_env.filters['datetimeformat'] = format_datetime
 
 @app.route('/del_bookmark/<bookmark_id>', methods=['GET'])
 def del_bookmark(bookmark_id):
