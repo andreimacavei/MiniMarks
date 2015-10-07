@@ -2,9 +2,14 @@
 
 {% for bookmark in bookmarks %}
     <div class="bookmark">
-        <h3 class="name"><a href="{{ bookmark.url }}">{{ bookmark.name }}</a></h3>
-        <img class="thumbnail" src="{{ bookmark.thumb_file_path }}" style="width:128px;height:128p"/>
-        <p class="pubdate">{{ bookmark.post_date }}</p>
+        <form action="{{ url_for('del_bookmark', bookmark_id=bookmark.bookmark_id) }}" method="get">
+        <p><img class="thumbnail" src="{{ bookmark.thumb_file_path }}" align="middle" style="width:64px;height:64p"/><!--
+         -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a name="url" href="{{ bookmark.url }}"></a><!--
+         -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ bookmark.name }}<!--
+         -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ bookmark.post_date|datetimeformat}}<!--
+         -->&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" name="delete" value="Delete">
+        </p>
+        </form>
     </div>
 
 {% endfor %}

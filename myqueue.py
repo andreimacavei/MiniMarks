@@ -1,11 +1,12 @@
 import time
+from datetime import datetime
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, url_for, redirect, \
     render_template, g, _app_ctx_stack, flash
 from werkzeug import check_password_hash, generate_password_hash
 import logging
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path = "/static", static_folder = "static")
 
 DATABASE = 'myqueue.db'
 PER_PAGE = 30
@@ -57,7 +58,7 @@ def format_datetime(timestamp):
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
 
 def thumbnail_path(url):
-    return 'images/under_constr.jpg'
+    return 'static/under-construction.jpg'
 
 @app.before_request
 def before_request():
@@ -156,6 +157,21 @@ def add_bookmark():
 
 app.jinja_env.filters['datetimeformat'] = format_datetime
 
+@app.route('/del_bookmark/<bookmark_id>', methods=['GET'])
+def del_bookmark(bookmark_id):
+    "Removes a bookmark from user's bookmarks list"
+    if 'user_id' not in session:
+        abort(401)
+    db = get_db()
+    app.logger.debug(" deleteing record with id=" + bookmark_id)
+    db.execute("delete from bookmark where bookmark_id=? and author_id=?",
+            [bookmark_id, session['user_id']])
+    db.commit()
+    flash("Bookmark deleted")
+    return redirect(url_for('homepage'))
+
+
+app.jinja_env.filters['datetimeformat'] = format_datetime
 
 if __name__ == '__main__':
     app.run(debug=True)
