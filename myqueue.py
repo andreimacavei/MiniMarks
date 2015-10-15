@@ -6,13 +6,13 @@ from flask import Flask, request, session, url_for, redirect, \
 from werkzeug import check_password_hash, generate_password_hash
 import logging
 
-app = Flask(__name__, static_url_path = "/static", static_folder = "static")
+
 
 DATABASE = 'myqueue.db'
 PER_PAGE = 30
 SECRET_KEY = 'development key'
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path = "/static", static_folder = "static")
 app.config.from_object(__name__)
 
 def get_db():
@@ -32,7 +32,7 @@ def close_database(exception):
     if db is not None:
         db.close()
 
-# @app.cli.command('initdb')
+# @app.cli.command('initdb') # working only for flaks >=0.11
 def init_db():
     '''Initializes the database.'''
     with app.app_context():
@@ -58,7 +58,7 @@ def format_datetime(timestamp):
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
 
 def thumbnail_path(url):
-    return 'static/under-construction.jpg'
+    return 'static/images/under_construction.png'
 
 @app.before_request
 def before_request():
@@ -145,12 +145,15 @@ def add_bookmark():
         abort(401)
     if request.form['url']:
         db = get_db()
-        app.logger.debug(" entered url:"+ request.form['url'] +
+        url = request.form['url']
+        if not url.startswith('http'):
+            url = 'http://' + url
+        app.logger.debug(" entered url:"+ url +
                             " desc:" + request.form['desc'])
         db.execute('''insert into bookmark (author_id, url, name, post_date,
             thumb_file_path) values (?, ?, ?, ?, ?)''',
-            [session['user_id'], request.form['url'], request.form['desc'],
-            int(time.time()), thumbnail_path(request.form['url'])])
+            [session['user_id'], url, request.form['desc'],
+            int(time.time()), thumbnail_path(url)])
         db.commit()
         flash('Your bookmark was added.')
     return redirect(url_for('homepage'))
