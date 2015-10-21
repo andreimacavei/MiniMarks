@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, url_for, redirect, \
-    render_template, g, _app_ctx_stack, flash
+    render_template, g, abort, _app_ctx_stack, flash
 from werkzeug import check_password_hash, generate_password_hash
 import logging
 
@@ -69,18 +69,42 @@ def before_request():
 
 @app.route('/')
 def homepage():
-    '''Show a user's saved bookmarks in Queue or if no user is logged in it
-    will redirect to the sign-in page.
-    '''
-
+    """Show a user's saved bookmarks or if no user is logged in it
+    will redirect to the public bookmarks page.
+    """
     if not g.user:
-        return redirect(url_for('login'))
+        return redirect(url_for('public_bookmarks'))
     return render_template('homepage.html', bookmarks=query_db('''
         select bookmark.*, user.* from bookmark, user
         where bookmark.author_id = user.user_id and
             user.user_id = ?
         order by bookmark.post_date desc limit ?''',
         [session['user_id'], PER_PAGE]))
+
+
+@app.route('/public')
+def public_bookmarks():
+    """ Displays the latest public bookmarks of all users"""
+    return render_template('homepage.html', bookmarks=query_db('''
+        select bookmark.*, user.* from bookmark, user
+        where bookmark.author_id == user.user_id and
+            bookmark.is_public == ?''', [1]))
+
+
+@app.route('/<username>')
+def user_homepage(username):
+    "Displays user's public bookmarks"
+    profile_user = query_db('select * from user where username = ?',
+                            [username], one=True)
+    if profile_user is None:
+        abort(404)
+
+    return render_template("homepage.html", bookmarks=query_db('''
+        select bookmark.*, user.* from bookmark, user
+        where bookmark.author_id == user.user_id and
+            user.user_id = ?
+        order by bookmark.post_date desc limit ?''',
+        [profile_user['user_id'], PER_PAGE]))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -148,6 +172,10 @@ def add_bookmark():
         url = request.form['url']
         if not url.startswith('http'):
             url = 'http://' + url
+        if not request.form['desc']:
+            flash("You need to add a name to this bookmark!")
+            return redirect(url_for('homepage'))
+
         app.logger.debug(" entered url:"+ url +
                             " desc:" + request.form['desc'])
         db.execute('''insert into bookmark (author_id, url, name, post_date,
@@ -176,4 +204,4 @@ def del_bookmark(bookmark_id):
 app.jinja_env.filters['datetimeformat'] = format_datetime
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

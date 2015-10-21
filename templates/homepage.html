@@ -1,16 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>MyQueue</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/bookmarks.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/sidebar.css">
-</head>
-<body>
-    {% if g.user %}
-        <a href="{{ url_for('logout') }}">Sign out [{{ g.user.username }}]</a>
+{% extends "layout.html" %}
+{% block title %}
+    {% if request.endpoint == 'public_bookmarks' %}
+        Public Bookmarks
+    {% elif request.endpoint == 'user_homepage' %}
+        {{ profile_user.username }}'s Bookmarks
     {% else %}
+        My Bookmarks
     {% endif %}
-    {% include 'sidebar.html' %}
-    {% include 'bookmarks.html' %}
-</body>
-</html>
+{% endblock %}
+
+{% block body %}
+    <h2>{{ self.title() }}</h2>
+    {% if g.user %}
+        {% if request.endpoint == 'user_homepage' %}
+            <div class="trackstatus">
+            {% if g.user.user_id == profile_user.user_id %}
+                These are your own bookmarks!
+            {% elif tracked %}
+                You are currently tracking these bookmarks
+                <a class="untrack" href="{{ url_for('untrack_bookmarks', username=profile_user.username)
+                }}">Untrack bookmarks</a>
+            {% else %}
+                You are not yet tracking these bookmarks
+                <a class="untrack" href="{{ url_for('track_bookmarks', username=profile_user.username)
+                }}">Track bookmarks</a>
+            {% endif %}
+            </div>
+        {% elif request.endpoint == 'homepage' %}
+            <div class="addbar">
+                <h3>Found anything interesting to mark {{ g.user.username }}?</h3>
+                <form action="{{ url_for('add_bookmark') }}" method="post">
+                <p><input type="text" name="url" placeholder="http://..." size=40/><!--
+                --><input type="text" name="desc" placeholder="desc" size=40/><!--
+                --><input type="submit" value="Add"></p>
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <ul class='bookmark'>
+    {% for bookmark in bookmarks %}
+
+        <li><p><img class="thumbnail" src="{{ bookmark.thumb_file_path }}" align="middle" style="width:48px;height:48p"/>
+        <strong><a name="url" href="{{ bookmark.url }}">{{bookmark.name}}</a></strong>
+        <small>&mdash; {{ bookmark.post_date|datetimeformat }}</small>
+        <form action="{{ url_for('del_bookmark', bookmark_id=bookmark.bookmark_id) }}" method="get"><input type="submit" name="delete" value="Delete"></form>
+        </p>
+        </li>
+    {% else %}
+        <li><em>There's no bookmark so far.</em>
+    {% endfor %}
+    </ul>
+{% endblock %}
