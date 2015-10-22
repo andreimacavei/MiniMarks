@@ -7,12 +7,12 @@
     <h1> MiniMarks</h1>
     <div class="navigation">
     {% if g.user %}
-        <a href="{{ url_for('homepage') }}">My Bookmarks</a>
-        <a href="{{ url_for('public_bookmarks') }}"> Public Bookmarks</a>
+        <a href="{{ url_for('homepage') }}">My Bookmarks</a> |
+        <a href="{{ url_for('public_bookmarks') }}"> Public Bookmarks</a> |
         <a href="{{ url_for('logout') }}"> Sign Out [{{ g.user.username }}]</a>
     {% else %}
-        <a href="{{ url_for('public_bookmarks') }}"> Public Bookmarks</a>
-        <a href="{{ url_for('register') }}"> Sign Up </a>
+        <a href="{{ url_for('public_bookmarks') }}"> Public Bookmarks</a> |
+        <a href="{{ url_for('register') }}"> Sign Up </a> |
         <a href="{{ url_for('login') }}"> Sign In </a>
     {% endif %}
     </div>
@@ -31,7 +31,7 @@
     </div>
     <hr>
     <div class="footer">
-    MyQueue &mdash; A Flask Application
+        MiniMarks &mdash; A Flask Application
     </div>
 </div>
 </html>

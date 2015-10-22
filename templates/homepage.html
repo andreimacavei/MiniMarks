@@ -28,7 +28,7 @@
             </div>
         {% elif request.endpoint == 'homepage' %}
             <div class="addbar">
-                <h3>Found anything interesting to mark {{ g.user.username }}?</h3>
+                <h3>Found anything interesting to save, {{ g.user.username }}?</h3>
                 <form action="{{ url_for('add_bookmark') }}" method="post">
                 <p><input type="text" name="url" placeholder="http://..." size=40/><!--
                 --><input type="text" name="desc" placeholder="desc" size=40/><!--
@@ -38,17 +38,16 @@
         {% endif %}
     {% endif %}
 
-    <ul class='bookmark'>
+    <ul class='bookmarks'>
     {% for bookmark in bookmarks %}
 
-        <li><p><img class="thumbnail" src="{{ bookmark.thumb_file_path }}" align="middle" style="width:48px;height:48p"/>
-        <strong><a name="url" href="{{ bookmark.url }}">{{bookmark.name}}</a></strong>
+        <li><img class="thumbnail" src="{{ bookmark.thumb_file_path }}" align="middle" style="width:48px;height:48p"/><p>
+        <strong><a name="title" href="{{ bookmark.url }}">{{bookmark.name}}</a></strong>
         <small>&mdash; {{ bookmark.post_date|datetimeformat }}</small>
-        <form action="{{ url_for('del_bookmark', bookmark_id=bookmark.bookmark_id) }}" method="get"><input type="submit" name="delete" value="Delete"></form>
-        </p>
-        </li>
+        <a name="remove" href="{{ url_for('del_bookmark', bookmark_id=bookmark.bookmark_id) }}">remove</a>
+        <div class="url">{{ bookmark.url }}</div>
     {% else %}
-        <li><em>There's no bookmark so far.</em>
+        <li><em>There are no public bookmarks so far.</em>
     {% endfor %}
     </ul>
 {% endblock %}
