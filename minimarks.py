@@ -189,7 +189,8 @@ def add_bookmark():
 
 @app.route('/del_bookmark/<bookmark_id>', methods=['GET'])
 def del_bookmark(bookmark_id):
-    "Removes a bookmark from user's bookmarks list"
+    """Removes a bookmark from user's bookmarks list"""
+
     if 'user_id' not in session:
         abort(401)
     db = get_db()
@@ -200,6 +201,21 @@ def del_bookmark(bookmark_id):
     flash("Bookmark deleted")
     return redirect(url_for('homepage'))
 
+
+@app.route('/save')
+def save_url():
+    """Saves a url from within a query string"""
+    query_string = request.query_string
+    app.logger.debug(" added from bookmarklet: " + query_string)
+    source = request.args.get("source")
+    url = request.args.get("url")
+    title = request.args.get("title")
+    db = get_db()
+    db.execute('''insert into bookmark (author_id, url, name, post_date,
+        thumb_file_path) values (?, ?, ?, ?, ?)''',
+        [session['user_id'], url, title, int(time.time()), thumbnail_path(url)])
+    db.commit()
+    return ('', 204)
 
 app.jinja_env.filters['datetimeformat'] = format_datetime
 
