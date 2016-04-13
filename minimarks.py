@@ -32,7 +32,6 @@ def close_database(exception):
     if db is not None:
         db.close()
 
-# @app.cli.command('initdb') # working only for flaks >=0.11
 def init_db():
     '''Initializes the database.'''
     with app.app_context():
@@ -40,6 +39,14 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
+
+
+# @app.cli.command('initdb') # working only for flaks >=0.11
+def initdb_command():
+    """Creates the database tables."""
+    init_db()
+    print('Initialized the database.')
+
 
 def query_db(query, args=(), one=False):
     '''Queries the database and returns a list of dictionaries.'''
@@ -57,8 +64,9 @@ def format_datetime(timestamp):
     """Format a timestamp for display."""
     return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d @ %H:%M')
 
-def thumbnail_path(url):
+def thumbnail_path(url, size=100):
     return 'static/images/under_construction.png'
+    # return 'http://img.bitpixels.com/getthumbnail?code=72740&size=%s&url=' % (size, url)
 
 @app.before_request
 def before_request():
